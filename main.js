@@ -39,19 +39,23 @@ const link = svg
   .data(links)
   .join("line");
 
-// append nodes
 const node = svg
   .append("g")
-  .attr("fill", "#fff")
-  .attr("stroke", "#000")
-  .attr("stroke-width", 1.5)
-  .selectAll("circle")
+  .selectAll("g")
   .data(nodes)
-  .join("circle")
-  .attr("fill", (d) => (d.children ? null : "#000"))
-  .attr("stroke", (d) => (d.children ? null : "#fff"))
-  .attr("r", 5)
+  .join("g")
   .call(drag(simulation));
+
+node.append("circle").attr("fill", "#fff").attr("stroke", "#000").attr("r", 5);
+
+node
+  .append("text")
+  .attr("dx", 10)
+  .attr("dy", ".35em")
+  .text((d) => d.data.label)
+  .attr("font-size", "10px")
+  .attr("font-family", "Arial")
+  .attr("fill", "#333");
 
 node.append("title").text((d) => d.data.label);
 
