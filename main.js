@@ -55,17 +55,6 @@ const node = svg
 
 node.append("title").text((d) => d.data.label);
 
-// this function is called at every tick of the simulation
-function ticked() {
-  link
-    .attr("x1", (d) => d.source.x)
-    .attr("y1", (d) => d.source.y)
-    .attr("x2", (d) => d.target.x)
-    .attr("y2", (d) => d.target.y);
-
-  node.attr("transform", (d) => `translate(${d.x},${d.y})`);
-}
-
 simulation.on("tick", () => {
   link
     .attr("x1", (d) => d.source.x)
@@ -73,7 +62,8 @@ simulation.on("tick", () => {
     .attr("x2", (d) => d.target.x)
     .attr("y2", (d) => d.target.y);
 
-  node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
+  node.attr("transform", (d) => `translate(${d.x},${d.y})`);
+  // node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
 });
 
 // invalidation.then(() => simulation.stop());
