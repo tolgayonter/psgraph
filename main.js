@@ -1,3 +1,6 @@
+import * as d3 from "d3";
+import data from "./data";
+
 // specify the dimensions.
 const width = 928;
 const height = 600;

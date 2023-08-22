@@ -76,3 +76,5 @@ const data = {
     { id: "child7", label: "Child 7" },
   ],
 };
+
+export default data;
