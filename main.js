@@ -12,6 +12,10 @@ const svg = d3
 
 // convert the hierarchy data into a flat data array
 const root = d3.hierarchy(data);
+
+root.fx = -width / 2; // add offset?
+root.fy = 0;
+
 const links = root.links();
 const nodes = root.descendants();
 
@@ -26,7 +30,12 @@ const simulation = d3
       .distance((link) => 10 * link.source.children.length)
       .strength(1)
   )
-  .force("charge", d3.forceManyBody().strength(-50));
+  .force("charge", d3.forceManyBody().strength(-500))
+  .force(
+    "x",
+    d3.forceX().x((d) => d.depth * 200)
+  )
+  .force("y", d3.forceY());
 // .force("x", d3.forceX())
 // .force("y", d3.forceY());
 
