@@ -23,12 +23,12 @@ const simulation = d3
     d3
       .forceLink(links)
       .id((d) => d.id)
-      .distance(0)
+      .distance((link) => 10 * link.source.children.length)
       .strength(1)
   )
-  .force("charge", d3.forceManyBody().strength(-50))
-  .force("x", d3.forceX())
-  .force("y", d3.forceY());
+  .force("charge", d3.forceManyBody().strength(-50));
+// .force("x", d3.forceX())
+// .force("y", d3.forceY());
 
 // append links
 const link = svg
