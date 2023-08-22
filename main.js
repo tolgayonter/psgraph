@@ -13,6 +13,11 @@ const svg = d3
   .attr("viewBox", [-width / 2, -height / 2, width, height]);
 // .attr("style", "max-width: 100%; height: auto;");
 
+const gGraph = svg
+  .append("g")
+  .attr("id", "graph")
+  .attr("transform", d3.zoomIdentity);
+
 // convert the hierarchy data into a flat data array
 const root = d3.hierarchy(data);
 
@@ -42,17 +47,21 @@ const simulation = d3
 // .force("x", d3.forceX())
 // .force("y", d3.forceY());
 
+const zoom = d3.zoom().scaleExtent([0.5, 32]).on("zoom", zoomed);
+
 // append links
-const link = svg
+const link = gGraph
   .append("g")
+  .attr("id", "links")
   .attr("stroke", "#999")
   .attr("stroke-opacity", 0.6)
   .selectAll("line")
   .data(links)
   .join("line");
 
-const node = svg
+const node = gGraph
   .append("g")
+  .attr("id", "nodes")
   .selectAll("g")
   .data(nodes)
   .join("g")
@@ -71,6 +80,8 @@ node
 
 node.append("title").text((d) => d.data.label);
 
+svg.call(zoom).call(zoom.transform, d3.zoomIdentity);
+
 simulation.on("tick", () => {
   link
     .attr("x1", (d) => d.source.x)
@@ -79,7 +90,9 @@ simulation.on("tick", () => {
     .attr("y2", (d) => d.target.y);
 
   node.attr("transform", (d) => `translate(${d.x},${d.y})`);
-  // node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
+  node.attr("class", (d) => "node");
+
+  //node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
 });
 
 // invalidation.then(() => simulation.stop());
@@ -108,6 +121,12 @@ function drag(simulation) {
     .on("start", dragstarted)
     .on("drag", dragged)
     .on("end", dragended);
+}
+
+function zoomed({ transform }) {
+  console.log(transform);
+  console.log(node);
+  gGraph.attr("transform", transform);
 }
 
 // not sure I want this.
