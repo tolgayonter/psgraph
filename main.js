@@ -13,17 +13,13 @@ const svg = d3
   .attr("viewBox", [-width / 2, -height / 2, width, height]);
 // .attr("style", "max-width: 100%; height: auto;");
 
-const gGraph = svg
-  .append("g")
-  .attr("id", "graph")
-  .attr("transform", d3.zoomIdentity);
+const graph = svg.append("g").attr("id", "graph");
+// .attr("transform", d3.zoomIdentity); // what
 
 // convert the hierarchy data into a flat data array
 const root = d3.hierarchy(data);
-
 root.fx = -width / 2; // add offset?
 root.fy = 0;
-
 const links = root.links();
 const nodes = root.descendants();
 
@@ -41,16 +37,14 @@ const simulation = d3
   .force("charge", d3.forceManyBody().strength(-500))
   .force(
     "x",
-    d3.forceX().x((d) => d.depth * 200)
+    d3.forceX().x((d) => d.depth * 250)
   )
   .force("y", d3.forceY());
-// .force("x", d3.forceX())
-// .force("y", d3.forceY());
 
 const zoom = d3.zoom().scaleExtent([0.5, 32]).on("zoom", zoomed);
 
 // append links
-const link = gGraph
+const gLink = graph
   .append("g")
   .attr("id", "links")
   .attr("stroke", "#999")
@@ -59,17 +53,18 @@ const link = gGraph
   .data(links)
   .join("line");
 
-const node = gGraph
+const gNode = graph
   .append("g")
   .attr("id", "nodes")
   .selectAll("g")
   .data(nodes)
   .join("g")
+  .attr("id", (d) => d.data.id)
   .call(drag(simulation));
 
-node.append("circle").attr("fill", "#fff").attr("stroke", "#000").attr("r", 5);
+gNode.append("circle").attr("fill", "#fff").attr("stroke", "#000").attr("r", 5);
 
-node
+gNode
   .append("text")
   .attr("dx", 10)
   .attr("dy", ".35em")
@@ -78,26 +73,29 @@ node
   .attr("font-family", "Arial")
   .attr("fill", "#333");
 
-node.append("title").text((d) => d.data.label);
-
-svg.call(zoom).call(zoom.transform, d3.zoomIdentity);
+// root node selection
+// graph.select(`#nodes :first-child`).attr("id", "root").on(".drag", null);
+graph.select(`#nodes #${root.data.id}`).on(".drag", null);
 
 simulation.on("tick", () => {
-  link
+  gLink
     .attr("x1", (d) => d.source.x)
     .attr("y1", (d) => d.source.y)
     .attr("x2", (d) => d.target.x)
     .attr("y2", (d) => d.target.y);
 
-  node.attr("transform", (d) => `translate(${d.x},${d.y})`);
-  node.attr("class", (d) => "node");
-
+  gNode.attr("transform", (d) => `translate(${d.x},${d.y})`);
   //node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
 });
 
-// invalidation.then(() => simulation.stop());
+svg.call(zoom).call(zoom.transform, d3.zoomIdentity);
 
-// TODO: arrowise
+simulation.tick(
+  Math.ceil(
+    Math.log(simulation.alphaMin()) / Math.log(1 - simulation.alphaDecay())
+  )
+);
+
 function drag(simulation) {
   function dragstarted(event, d) {
     if (!event.active) simulation.alphaTarget(0.3).restart();
@@ -124,9 +122,7 @@ function drag(simulation) {
 }
 
 function zoomed({ transform }) {
-  console.log(transform);
-  console.log(node);
-  gGraph.attr("transform", transform);
+  graph.attr("transform", transform);
 }
 
 // not sure I want this.
